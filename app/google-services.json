@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "449418490583",
+    "project_id": "cvchat-fe45c",
+    "storage_bucket": "cvchat-fe45c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:449418490583:android:ce3346716848b3c4ea3692",
+        "android_client_info": {
+          "package_name": "com.example.chatapp_cv"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgLw0nNGYFGQ6WC50LhBLZAc2gN2HNgsE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
