@@ -18,7 +18,6 @@ public class MainActivity extends AppCompatActivity {
 
     private String email_example = "cruzcruzvianny@gmail.com";
     private String password_example = "Vianny1213";
-    private FirebaseAuth Auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,19 +25,6 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-
-
-        Auth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = Auth.getCurrentUser();
-
-        if (currentUser != null) {
-            // Si el usuario ya está autenticado, lo rediriges a la actividad principal
-            startActivity(new Intent(MainActivity.this, CentralActivity.class));
-        } else {
-            // Si no hay ningún usuario autenticado, lo rediriges a la actividad de login
-            startActivity(new Intent(MainActivity.this, CentralActivity.class));
-        }
-        finish();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

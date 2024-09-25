@@ -1,6 +1,7 @@
 package com.example.chatapp_cv;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -10,12 +11,16 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.util.Objects;
 
 public class Login extends AppCompatActivity {
     private EditText emailEditText, passwordEditText;
@@ -27,6 +32,26 @@ public class Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
+
+        Toolbar toolbar = findViewById(R.id.toolbarLogin);
+        setSupportActionBar(toolbar);
+
+        // Habilitar la flecha de ir hacia atrás
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
+        // Quitar el titulo del Toolbar
+        Objects.requireNonNull(getSupportActionBar()).setTitle("");
+
+        // Cambiar el color de la flecha a blanco usando
+        Drawable upArrow = ContextCompat.getDrawable(this, androidx.appcompat.R.drawable.abc_ic_ab_back_material);
+        if (upArrow != null) {
+            upArrow.setTint(ContextCompat.getColor(this, android.R.color.white));
+            getSupportActionBar().setHomeAsUpIndicator(upArrow);
+        }
+
 
         Auth = FirebaseAuth.getInstance();
 
@@ -66,7 +91,7 @@ public class Login extends AppCompatActivity {
                         Toast.makeText(Login.this, "Bienvenido " + user.getEmail(), Toast.LENGTH_SHORT).show();
 
                         // Redirigir al usuario a la pantalla principal
-                        startActivity(new Intent(Login.this, MainActivity.class));
+                        startActivity(new Intent(Login.this, CentralActivity.class));
                         finish();  // Cierra la actividad de login para que no se pueda regresar a ella
                     } else {
                         // Si el inicio de sesion falla, mostrar un mensaje
