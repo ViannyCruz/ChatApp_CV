@@ -30,19 +30,23 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    buildFeatures{
-        viewBinding = true;
+    buildFeatures {
+        viewBinding = true
     }
 }
 
 dependencies {
     implementation(platform(libs.google.firebase.bom))
     implementation(libs.firebase.auth.ktx)
-
-    implementation(libs.appcompat)
+    implementation(libs.firebase.database.ktx)
+    implementation(libs.play.services.auth)
+    implementation(libs.recyclerview)
     implementation(libs.material)
+    implementation(libs.appcompat)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation(libs.firebase.storage)
+    implementation(libs.picasso)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

@@ -23,15 +23,22 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import android.view.View;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class Register extends AppCompatActivity {
 
-    private EditText emailEditText, passwordEditText;
+    private EditText emailEditText, passwordEditText, usernameEditText;
     private Button registerButton;
     private FirebaseAuth Auth;
+    private FirebaseDatabase database;
+    private DatabaseReference usersRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,9 +68,12 @@ public class Register extends AppCompatActivity {
 
 
         Auth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+        usersRef = database.getReference("users");
 
         emailEditText = findViewById(R.id.editTextText);
         passwordEditText = findViewById(R.id.editTextText2);
+        usernameEditText = findViewById(R.id.usernameEditTextText);
         registerButton = findViewById(R.id.button3);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -83,6 +93,7 @@ public class Register extends AppCompatActivity {
     public void registerUser(View v) {
         String email = emailEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
+        String username = usernameEditText.getText().toString().trim();
 
         if (TextUtils.isEmpty(email)) {
             emailEditText.setError("El correo es requerido.");
@@ -91,6 +102,11 @@ public class Register extends AppCompatActivity {
 
         if (TextUtils.isEmpty(password)) {
             passwordEditText.setError("La contraseña es requerida.");
+            return;
+        }
+
+        if (TextUtils.isEmpty(username)) {
+            usernameEditText.setError("El nombre de usuario es requerido.");
             return;
         }
 
@@ -106,6 +122,13 @@ public class Register extends AppCompatActivity {
                         // Registro exitoso, se obtiene el usuario registrado
                         FirebaseUser user = Auth.getCurrentUser();
                         assert user != null;
+                        String userId = user.getUid();
+
+                        Map<String, Object> userData = new HashMap<>();
+                        userData.put("email", email);
+                        userData.put("username", username);
+                        usersRef.child(userId).setValue(userData);
+
                         Toast.makeText(Register.this, "Usuario registrado: " + user.getEmail(), Toast.LENGTH_SHORT).show();
                         // Redirigir o realizar alguna acción, como cerrar la actividad de registro
                     } else {

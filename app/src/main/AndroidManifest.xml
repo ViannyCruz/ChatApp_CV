@@ -16,6 +16,12 @@
             android:name=".CentralActivity"
             android:exported="false" />
         <activity
+            android:name=".ChatActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ChatListActivity"
+            android:exported="false" />
+        <activity
             android:name=".Register"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
