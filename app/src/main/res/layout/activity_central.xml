@@ -7,4 +7,41 @@
     android:layout_height="match_parent"
     tools:context=".CentralActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/LightGreen"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="68dp"
+            android:layout_height="68dp"
+            android:layout_marginStart="16dp"
+            android:contentDescription="@string/toolbar_image_description"
+            android:src="@drawable/logo_toolbar" />
+
+        <FrameLayout
+            android:id="@+id/toolbar_button"
+            android:layout_width="58dp"
+            android:layout_height="58dp"
+            android:layout_marginStart="264dp"
+            android:layout_marginEnd="16dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/toolbar_button_description"
+                android:onClick="goToSettingsView"
+                android:src="@drawable/tres_puntos" />
+        </FrameLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,8 @@
 package com.example.chatapp_cv;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,5 +22,10 @@ public class CentralActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+    }
+
+    public void goToSettingsView(View v) {
+        Intent intent = new Intent(CentralActivity.this, Settings.class);
+        startActivity(intent);
     }
 }

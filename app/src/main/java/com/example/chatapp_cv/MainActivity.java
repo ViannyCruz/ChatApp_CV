@@ -20,6 +20,21 @@ public class MainActivity extends AppCompatActivity {
     private String password_example = "Vianny1213";
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Verificar si el usuario ya ha iniciado sesion
+        boolean isLoggedIn = getSharedPreferences("LoginPrefs", MODE_PRIVATE)
+                .getBoolean("isLoggedIn", false);
+
+        if (isLoggedIn) {
+            // Si el usuario esta logueado, redirigir a la actividad principal
+            startActivity(new Intent(MainActivity.this, CentralActivity.class));
+            finish();  // Evita que el usuario vuelva a la pantalla de login
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
