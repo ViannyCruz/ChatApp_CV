@@ -7,6 +7,12 @@ android {
     namespace = "com.example.chatapp_cv"
     compileSdk = 34
 
+    packaging {
+        resources {
+            excludes += "META-INF/DEPENDENCIES"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.example.chatapp_cv"
         minSdk = 24
@@ -39,6 +45,7 @@ dependencies {
     implementation(platform(libs.google.firebase.bom))
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.database.ktx)
+    implementation(libs.firebase.messaging)
     implementation(libs.play.services.auth)
     implementation(libs.recyclerview)
     implementation(libs.material)
@@ -47,7 +54,19 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.firebase.storage)
     implementation(libs.picasso)
+    implementation(libs.okhttp)
+    implementation(libs.gson)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+
+
+    implementation(libs.google.auth.library.oauth2.http)
+    implementation(libs.google.auth.library.credentials)
+
+
+    // Si necesitas firebase-admin, asegúrate de que esté definida en libs.versions.toml
+    //implementation("com.google.firebase:firebase-admin:9.1.9")
+
 }

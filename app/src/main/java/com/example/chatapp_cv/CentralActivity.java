@@ -1,13 +1,10 @@
 package com.example.chatapp_cv;
 
 import android.content.Intent;
-
-
 import android.os.Bundle;
-import android.view.View;
-
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,28 +12,33 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class CentralActivity extends AppCompatActivity {
 
     private FirebaseDatabase database;
-    private DatabaseReference usersRef, chatsRef;
+    private DatabaseReference usersRef, chatsRef, fcmTokensRef;
     private FirebaseAuth auth;
     private String currentUserId;
 
@@ -45,6 +47,10 @@ public class CentralActivity extends AppCompatActivity {
 
     private EditText searchEditText;
     private LinearLayout chatListLayout, userListLayout;
+
+    private DatabaseReference databaseReference;
+
+    private String deviceId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +66,7 @@ public class CentralActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance();
         usersRef = database.getReference("users");
         chatsRef = database.getReference("chats");
+        fcmTokensRef = database.getReference("fcmTokens");
         auth = FirebaseAuth.getInstance();
         currentUserId = auth.getCurrentUser().getUid();
 
@@ -72,6 +79,37 @@ public class CentralActivity extends AppCompatActivity {
 
         loadChats();
         setupSearch();
+
+        databaseReference = FirebaseDatabase.getInstance().getReference("users");
+
+        // Generar un identificador único para el dispositivo
+        deviceId = UUID.randomUUID().toString();
+
+        // Obtener el token de registro de FCM
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                if (!task.isSuccessful()) {
+                    Log.w("CentralActivity", "Fetching FCM registration token failed", task.getException());
+                    return;
+                }
+
+                // Obtener el token de registro de FCM
+                String token = task.getResult();
+
+                // Almacenar el token en Firebase Realtime Database asociado al dispositivo
+                storeFCMToken(token);
+
+                // Log y toast
+                Log.d("CentralActivity", "FCM Token: " + token);
+                Toast.makeText(CentralActivity.this, "FCM Token: " + token, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void storeFCMToken(String token) {
+        // Almacenar el token bajo el identificador del dispositivo
+        fcmTokensRef.child(deviceId).setValue(token);
     }
 
     private void loadChats() {
@@ -194,5 +232,36 @@ public class CentralActivity extends AppCompatActivity {
     public void goToSettingsView(View v) {
         Intent intent = new Intent(CentralActivity.this, Settings.class);
         startActivity(intent);
+    }
+
+    public void logoutUser(View v) {
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            databaseReference.child(userId).child("fcmToken").removeValue()
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Log.d("CentralActivity", "FCM Token removed successfully");
+                            } else {
+                                Log.w("CentralActivity", "Failed to remove FCM Token", task.getException());
+                            }
+                        }
+                    });
+        }
+
+        auth.signOut();
+
+        // Limpiar el estado de sesión y el ID de usuario
+        getSharedPreferences("LoginPrefs", MODE_PRIVATE)
+                .edit()
+                .remove("isLoggedIn")
+                .remove("userId")  // Eliminar el ID de usuario
+                .apply();
+
+        // Redirigir al usuario a la pantalla de login
+        startActivity(new Intent(CentralActivity.this, MainActivity.class));
+        finish();
     }
 }

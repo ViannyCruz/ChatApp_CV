@@ -6,6 +6,13 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <Button
+        android:id="@+id/button5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="logoutUser"
+        android:text="Button" />
+
     <EditText
         android:id="@+id/searchEditText"
         android:layout_width="match_parent"
