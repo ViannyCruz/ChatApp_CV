@@ -12,6 +12,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -19,18 +25,28 @@ import java.util.Locale;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
+    private static final int VIEW_TYPE_MESSAGE_SENT = 1;
+    private static final int VIEW_TYPE_MESSAGE_RECEIVED = 2;
+
     private List<Message> messages;
     private String currentUserId;
+    private DatabaseReference usersRef;
 
     public MessageAdapter(List<Message> messages, String currentUserId) {
         this.messages = messages;
         this.currentUserId = currentUserId;
+        this.usersRef = FirebaseDatabase.getInstance().getReference("users");
     }
 
     @NonNull
     @Override
     public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message, parent, false);
+        View view;
+        if (viewType == VIEW_TYPE_MESSAGE_SENT) {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_sent, parent, false);
+        } else {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_received, parent, false);
+        }
         return new MessageViewHolder(view);
     }
 
@@ -45,12 +61,22 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         return messages.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        Message message = messages.get(position);
+        if (message.getUserId().equals(currentUserId)) {
+            return VIEW_TYPE_MESSAGE_SENT;
+        } else {
+            return VIEW_TYPE_MESSAGE_RECEIVED;
+        }
+    }
+
     public void addMessage(Message message) {
         messages.add(message);
         notifyItemInserted(messages.size() - 1);
     }
 
-    public static class MessageViewHolder extends RecyclerView.ViewHolder {
+    public class MessageViewHolder extends RecyclerView.ViewHolder {
 
         private TextView messageText;
         private TextView senderName;
@@ -82,7 +108,21 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 messageImage.setVisibility(View.GONE);
             }
 
-            senderName.setText(message.getUserId());
+            // Obtener el nombre del usuario
+            usersRef.child(message.getUserId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        String username = dataSnapshot.child("username").getValue(String.class);
+                        senderName.setText(username);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // Manejar el error
+                }
+            });
 
             // Formatear el timestamp
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());

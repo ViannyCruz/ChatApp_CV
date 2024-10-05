@@ -1,17 +1,11 @@
 package com.example.chatapp_cv;
 
 import android.content.Intent;
-
-
 import android.os.Bundle;
-import android.view.View;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -19,8 +13,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -29,9 +25,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class CentralActivity extends AppCompatActivity {
 
@@ -44,13 +38,16 @@ public class CentralActivity extends AppCompatActivity {
     private List<User> users;
 
     private EditText searchEditText;
-    private LinearLayout chatListLayout, userListLayout;
+    private RecyclerView chatRecyclerView, userListRecyclerView;
+    private ChatAdapter chatAdapter;
+    private UserAdapter userAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_central);
+        FloatingActionButton fab = findViewById(R.id.floatingActionButton);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -67,8 +64,18 @@ public class CentralActivity extends AppCompatActivity {
         users = new ArrayList<>();
 
         searchEditText = findViewById(R.id.searchEditText);
-        chatListLayout = findViewById(R.id.chatListLayout);
-        userListLayout = findViewById(R.id.userListLayout);
+        chatRecyclerView = findViewById(R.id.chatRecyclerView);
+        userListRecyclerView = findViewById(R.id.userListRecyclerView);
+
+        // Configurar RecyclerView y Adapter para chats
+        chatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        chatAdapter = new ChatAdapter(chats, currentUserId, this);
+        chatRecyclerView.setAdapter(chatAdapter);
+
+        // Configurar RecyclerView y Adapter para usuarios
+        userListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        userAdapter = new UserAdapter(users, this);
+        userListRecyclerView.setAdapter(userAdapter);
 
         loadChats();
         setupSearch();
@@ -85,7 +92,7 @@ public class CentralActivity extends AppCompatActivity {
                         chats.add(chat);
                     }
                 }
-                displayChats();
+                chatAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -93,22 +100,6 @@ public class CentralActivity extends AppCompatActivity {
                 // Error al leer los chats
             }
         });
-    }
-
-    private void displayChats() {
-        chatListLayout.removeAllViews(); // Limpiar cualquier vista previa
-
-        for (Chat chat : chats) {
-            String chatPartnerId = chat.getUserId1().equals(currentUserId) ? chat.getUserId2() : chat.getUserId1();
-            Button button = new Button(this);
-            button.setText(chatPartnerId); // Aquí deberías obtener el nombre del usuario en lugar del ID
-            button.setOnClickListener(v -> {
-                Intent intent = new Intent(CentralActivity.this, ChatActivity.class);
-                intent.putExtra("chatId", chat.getUserId1() + "_" + chat.getUserId2());
-                startActivity(intent);
-            });
-            chatListLayout.addView(button);
-        }
     }
 
     private void setupSearch() {
@@ -138,7 +129,7 @@ public class CentralActivity extends AppCompatActivity {
                                 users.add(user);
                             }
                         }
-                        displayUsers();
+                        userAdapter.notifyDataSetChanged();
                     }
 
                     @Override
@@ -148,51 +139,14 @@ public class CentralActivity extends AppCompatActivity {
                 });
     }
 
-    private void displayUsers() {
-        userListLayout.removeAllViews(); // Limpiar cualquier vista previa
-
-        for (User user : users) {
-            Button button = new Button(this);
-            button.setText(user.getUsername());
-            button.setOnClickListener(v -> {
-                createChat(user.getUsername());
-            });
-            userListLayout.addView(button);
-        }
-    }
-
-    private void createChat(String otherUsername) {
-        usersRef.orderByChild("username").equalTo(otherUsername).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        String otherUserId = snapshot.getKey();
-                        String chatId = currentUserId.compareTo(otherUserId) < 0 ? currentUserId + "_" + otherUserId : otherUserId + "_" + currentUserId;
-                        Map<String, Object> chatData = new HashMap<>();
-                        chatData.put("userId1", currentUserId);
-                        chatData.put("userId2", otherUserId);
-                        chatsRef.child(chatId).setValue(chatData)
-                                .addOnCompleteListener(task -> {
-                                    if (task.isSuccessful()) {
-                                        Toast.makeText(CentralActivity.this, "Chat creado con éxito", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(CentralActivity.this, "Error al crear el chat", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Error al leer los usuarios
-            }
-        });
-    }
 
     public void goToSettingsView(View v) {
         Intent intent = new Intent(CentralActivity.this, Settings.class);
+        startActivity(intent);
+    }
+
+    public void goToAddUserView(View v) {
+        Intent intent = new Intent(CentralActivity.this, AddChat.class);
         startActivity(intent);
     }
 }
