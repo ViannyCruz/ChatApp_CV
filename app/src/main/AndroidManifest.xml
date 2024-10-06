@@ -27,6 +27,9 @@
 
 
         <activity
+            android:name=".AddChat"
+            android:exported="false" />
+        <activity
             android:name=".Settings"
             android:exported="false"
             android:parentActivityName=".CentralActivity" />
@@ -35,7 +38,8 @@
             android:exported="false" />
         <activity
             android:name=".ChatActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".CentralActivity"/>
         <activity
             android:name=".ChatListActivity"
             android:exported="false" />
