@@ -27,6 +27,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class Login extends AppCompatActivity {
@@ -102,7 +104,37 @@ public class Login extends AppCompatActivity {
                                 .apply();
 
                         // Obtener y almacenar el token de FCM
-                       // updateFCMToken(user.getUid());
+                        //updateFCMToken(user.getUid());
+
+                        // Obtener y almacenar el token de FCM
+                        FirebaseMessaging.getInstance().getToken()
+                                .addOnCompleteListener(new OnCompleteListener<String>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<String> task) {
+                                        if (!task.isSuccessful()) {
+                                            Log.w("FCM", "Fetching FCM registration token failed", task.getException());
+                                            return;
+                                        }
+
+                                        // Obtener el token
+                                        String token = task.getResult();
+                                        Log.d("FCM", "Token: " + token);
+
+                                        FirebaseUser user = Auth.getCurrentUser();
+                                        assert user != null;
+                                        String userId = user.getUid();
+
+                                        Map<String, Object> userData = new HashMap<>();
+                                        userData.put("fcmToken", token);
+                                        databaseReference.child(userId).updateChildren(userData);
+
+                                    }
+                                });
+
+
+
+
+
 
                         // Redirigir al usuario a la pantalla principal
                         startActivity(new Intent(Login.this, CentralActivity.class));
@@ -114,7 +146,7 @@ public class Login extends AppCompatActivity {
     }
 
     // Metodo para actualizar el token de FCM
-    /*
+/*
     private void updateFCMToken(String userId) {
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {

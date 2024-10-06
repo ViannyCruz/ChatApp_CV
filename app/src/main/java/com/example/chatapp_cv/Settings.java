@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Objects;
 
@@ -27,11 +28,11 @@ public class Settings extends AppCompatActivity {
 
         Auth = FirebaseAuth.getInstance();
 
-        // Inicializar la toolbar
         Toolbar toolbar = findViewById(R.id.toolbarsettings);
         setSupportActionBar(toolbar);
 
-        // Habilitar flecha
+
+        // Habilitar la flecha de ir hacia atrás
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -47,7 +48,7 @@ public class Settings extends AppCompatActivity {
             getSupportActionBar().setHomeAsUpIndicator(upArrow);
         }
 
-        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);

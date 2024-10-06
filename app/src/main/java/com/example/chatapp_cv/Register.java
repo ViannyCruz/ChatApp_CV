@@ -1,6 +1,7 @@
 package com.example.chatapp_cv;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -33,7 +34,6 @@ import java.util.Objects;
 public class Register extends AppCompatActivity {
 
     private EditText emailEditText, passwordEditText, usernameEditText;
-    private Button registerButton;
     private FirebaseAuth Auth;
     private FirebaseDatabase database;
     private DatabaseReference usersRef;
@@ -72,7 +72,6 @@ public class Register extends AppCompatActivity {
         emailEditText = findViewById(R.id.editTextText);
         passwordEditText = findViewById(R.id.editTextText2);
         usernameEditText = findViewById(R.id.usernameEditTextText);
-        registerButton = findViewById(R.id.button3);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -128,7 +127,11 @@ public class Register extends AppCompatActivity {
                         usersRef.child(userId).setValue(userData);
 
                         Toast.makeText(Register.this, "Usuario registrado: " + user.getEmail(), Toast.LENGTH_SHORT).show();
-                        // Redirigir o realizar alguna acción, como cerrar la actividad de registro
+                        // Redirigir
+                        Intent intent = new Intent(Register.this, Login.class);
+                        startActivity(intent);
+
+
                     } else {
                         // Si el registro falla, mostrar un mensaje al usuario.
                         Toast.makeText(Register.this, "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -139,14 +142,12 @@ public class Register extends AppCompatActivity {
     // UI
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            // Acción de ir hacia atras
+            // Accion de ir hacia atras
             finish();  // Cierra la actividad actual
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
-
-
 
 
 }

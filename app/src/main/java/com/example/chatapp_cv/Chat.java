@@ -33,4 +33,15 @@ public class Chat {
     public void addMessage(Message message) {
         messages.add(message);
     }
+
+    public String getOtherUserId(String currentUserId) {
+        if (userId1.equals(currentUserId)) {
+            return userId2;
+        } else if (userId2.equals(currentUserId)) {
+            return userId1;
+        } else {
+            throw new IllegalArgumentException("El usuario actual no está en esta conversación.");
+        }
+    }
+
 }

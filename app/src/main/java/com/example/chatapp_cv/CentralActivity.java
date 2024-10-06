@@ -52,7 +52,7 @@ public class CentralActivity extends AppCompatActivity {
     private List<Chat> chats;
     private List<User> users;
 
-    private EditText searchEditText;
+    //private EditText searchEditText;
     private RecyclerView chatRecyclerView, userListRecyclerView;
     private ChatAdapter chatAdapter;
     private UserAdapter userAdapter;
@@ -83,7 +83,7 @@ public class CentralActivity extends AppCompatActivity {
         chats = new ArrayList<>();
         users = new ArrayList<>();
 
-        searchEditText = findViewById(R.id.searchEditText);
+        //searchEditText = findViewById(R.id.searchEditText);
         chatRecyclerView = findViewById(R.id.chatRecyclerView);
         userListRecyclerView = findViewById(R.id.userListRecyclerView);
 
@@ -98,7 +98,7 @@ public class CentralActivity extends AppCompatActivity {
         userListRecyclerView.setAdapter(userAdapter);
 
         loadChats();
-        setupSearch();
+       // setupSearch();
 
         databaseReference = FirebaseDatabase.getInstance().getReference("users");
 
@@ -153,6 +153,7 @@ public class CentralActivity extends AppCompatActivity {
         });
     }
 
+    /*
     private void setupSearch() {
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -166,7 +167,7 @@ public class CentralActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {}
         });
-    }
+    }*/
 
     private void searchUsers(String query) {
         usersRef.orderByChild("username").startAt(query).endAt(query + "\uf8ff")

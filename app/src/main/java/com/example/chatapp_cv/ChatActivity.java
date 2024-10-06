@@ -199,25 +199,71 @@ public class ChatActivity extends AppCompatActivity {
     private void sendMessage() {
         String text = messageInput.getText().toString().trim();
         if (!text.isEmpty()) {
-            String deviceToken = "dohGQQn2STaN6L0mhZe4iC:APA91bHO_-Znkjv6H0PxskzE3XT-weFFeHEyzyatxr6wCoUJqIMlKfn-CS_Lo_Yngie7hLFxXJLtyHw846zai53V0BFtNEpp6-76cqC4CpNAJLCClIgEqMxaCSFtAiTl0B_4mwPfVXxh";
+            String chatId = getIntent().getStringExtra("chatId");
 
-            String key = messagesRef.push().getKey();
-            Map<String, Object> messageData = new HashMap<>();
-            messageData.put("text", text);
-            messageData.put("userId", currentUserId);
-            messageData.put("timestamp", System.currentTimeMillis());
+            if (chatId == null) {
+                throw new IllegalArgumentException("chatId cannot be null");
+            }
 
-            messagesRef.child(key).setValue(messageData).addOnSuccessListener(aVoid -> {
-                // Enviar notificación push al destinatario en un hilo de fondo
-                new Thread(() -> sendPushNotification(text, deviceToken)).start();
-            }).addOnFailureListener(e -> {
-                Toast.makeText(ChatActivity.this, "Error al enviar el mensaje", Toast.LENGTH_SHORT).show();
+            DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatId);
+
+            chatRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        Chat chat = dataSnapshot.getValue(Chat.class);
+                        if (chat != null) {
+                            String otherUserId = chat.getOtherUserId(currentUserId);
+                            DatabaseReference otherUserRef = FirebaseDatabase.getInstance().getReference("users").child(otherUserId);
+
+                            otherUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.exists()) {
+                                        String deviceToken = dataSnapshot.child("fcmToken").getValue(String.class);
+
+                                        String key = messagesRef.push().getKey();
+                                        Map<String, Object> messageData = new HashMap<>();
+                                        messageData.put("text", text);
+                                        messageData.put("userId", currentUserId);
+                                        messageData.put("timestamp", System.currentTimeMillis());
+
+                                        messagesRef.child(key).setValue(messageData).addOnSuccessListener(aVoid -> {
+                                            if (deviceToken != null) {
+                                                new Thread(() -> sendPushNotification(text, deviceToken)).start();
+                                            } else {
+                                                Log.d("ChatActivity", "Mensaje enviado sin notificación porque el token es nulo");
+                                            }
+                                        }).addOnFailureListener(e -> {
+                                            Toast.makeText(ChatActivity.this, "Error al enviar el mensaje", Toast.LENGTH_SHORT).show();
+                                        });
+
+                                        messageInput.setText("");
+                                    } else {
+                                        Log.e("ChatActivity", "Usuario no encontrado para chatId: " + chatId);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                    Log.e("ChatActivity", "Database error: " + databaseError.getMessage());
+                                }
+                            });
+                        } else {
+                            Log.e("ChatActivity", "Error: Chat object is null");
+                        }
+                    } else {
+                        Log.e("ChatActivity", "Chat not found for chatId: " + chatId);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.e("ChatActivity", "Database error: " + databaseError.getMessage());
+                }
             });
-
-            messageInput.setText("");
         }
     }
-
     private void sendPushNotification(String message, String deviceToken) {
         try {
             // Credenciales de la cuenta de servicio
