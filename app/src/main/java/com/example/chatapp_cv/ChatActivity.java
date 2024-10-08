@@ -83,6 +83,7 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
 
 
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -333,6 +334,24 @@ public class ChatActivity extends AppCompatActivity {
             Log.e("ChatActivity", "Error: " + e.getMessage());
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     private void listenForMessages() {
         messagesRef.addValueEventListener(new ValueEventListener() {
             @Override

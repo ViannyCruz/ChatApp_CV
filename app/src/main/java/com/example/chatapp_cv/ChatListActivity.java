@@ -67,7 +67,7 @@ public class ChatListActivity extends AppCompatActivity {
         for (Chat chat : chats) {
             String chatPartnerId = chat.getUserId1().equals(currentUserId) ? chat.getUserId2() : chat.getUserId1();
             Button button = new Button(this);
-            button.setText(chatPartnerId); // Aquí deberías obtener el nombre del usuario en lugar del ID
+            button.setText(chatPartnerId);
             button.setOnClickListener(v -> {
                 Intent intent = new Intent(ChatListActivity.this, ChatActivity.class);
                 intent.putExtra("chatId", chat.getUserId1() + "_" + chat.getUserId2());

@@ -103,7 +103,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
                             }
                         } else {
                             Log.d("Firebase", "No hay mensajes");  // Verificación en caso de no encontrar mensajes
-                            holder.lastMessageTextView.setText("Sin mensajes");
+                           // holder.lastMessageTextView.setText("Sin mensajes");
+                            holder.lastMessageTextView.setText("");
                         }
                     }
 

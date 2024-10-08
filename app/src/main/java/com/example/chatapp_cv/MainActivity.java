@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         fcmTokensRef = FirebaseDatabase.getInstance().getReference("fcmTokens");
 
         // Generar un identificador único para el dispositivo
-        deviceId = UUID.randomUUID().toString();
+      //  deviceId = UUID.randomUUID().toString();
 
         requestPermission();
 
